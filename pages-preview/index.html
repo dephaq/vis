@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Interior Visualization PWA</title>
+    <meta
+      name="description"
+      content="Static GitHub Pages preview of an interior visualization project workspace."
+    />
+    <style>
+      :root {
+        --bg: #f6f2eb;
+        --paper: #fffdf8;
+        --ink: #1f1b16;
+        --muted: #6f675d;
+        --line: #d9d0c3;
+        --accent: #0f766e;
+        --accent-dark: #115e59;
+        --warn: #9a5b13;
+        --soft: #ebe4d8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        line-height: 1.45;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .shell {
+        width: min(1280px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding-bottom: 22px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: grid;
+        gap: 4px;
+      }
+
+      .eyebrow {
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 750;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(34px, 5vw, 64px);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .summary {
+        max-width: 760px;
+        color: var(--muted);
+        font-size: 17px;
+      }
+
+      .status-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin: 22px 0;
+      }
+
+      .metric {
+        border: 1px solid var(--line);
+        background: rgba(255, 253, 248, 0.72);
+        padding: 14px;
+        border-radius: 6px;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 22px;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: 310px minmax(0, 1fr) 330px;
+        gap: 18px;
+        align-items: start;
+      }
+
+      .panel,
+      .item {
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--paper);
+        box-shadow: 0 10px 24px rgba(31, 27, 22, 0.05);
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .panel + .panel {
+        margin-top: 18px;
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+
+      h2 {
+        font-size: 18px;
+      }
+
+      .hint {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .drop {
+        min-height: 130px;
+        border: 1px dashed #a99d8e;
+        border-radius: 6px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 22px;
+        background: #f3ede4;
+      }
+
+      .drop b {
+        display: block;
+      }
+
+      .file-list,
+      .result-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .item {
+        padding: 12px;
+      }
+
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .name {
+        overflow-wrap: anywhere;
+        font-weight: 720;
+      }
+
+      .tag {
+        flex: none;
+        align-self: flex-start;
+        border-radius: 999px;
+        background: var(--soft);
+        color: #4d463d;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .tag.good {
+        background: #dcefe8;
+        color: #12634f;
+      }
+
+      .tag.warn {
+        background: #f4dfbd;
+        color: var(--warn);
+      }
+
+      .textarea,
+      .brief {
+        width: 100%;
+        min-height: 210px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #fbf8f2;
+        padding: 14px;
+        color: #3d362f;
+        font: inherit;
+        resize: vertical;
+      }
+
+      .brief {
+        overflow: auto;
+        white-space: pre-wrap;
+      }
+
+      .button {
+        border: 0;
+        border-radius: 6px;
+        background: var(--accent);
+        color: white;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 16px;
+        font-weight: 760;
+      }
+
+      .button.secondary {
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--ink);
+      }
+
+      .button.full {
+        width: 100%;
+      }
+
+      .job {
+        position: sticky;
+        top: 18px;
+      }
+
+      .preview-image {
+        aspect-ratio: 16 / 10;
+        border-radius: 6px;
+        background:
+          linear-gradient(135deg, rgba(15, 118, 110, 0.18), transparent 38%),
+          linear-gradient(45deg, #d7c4ad, #f8efe3 45%, #b8a38d);
+        border: 1px solid var(--line);
+        margin-bottom: 10px;
+      }
+
+      .note {
+        margin-top: 22px;
+        border: 1px solid var(--line);
+        background: #fff8e8;
+        border-radius: 6px;
+        padding: 14px;
+        color: #4e3f22;
+        font-size: 14px;
+      }
+
+      @media (max-width: 980px) {
+        .workspace,
+        .status-strip {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .job {
+          position: static;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="eyebrow">Visualization PWA</div>
+          <h1>Interior Visualization</h1>
+        </div>
+        <p class="summary">
+          Рабочее пространство для интерьерной визуализации: загрузка ТЗ и чертежей,
+          извлечение текста, сборка prompt и история генераций.
+        </p>
+      </header>
+
+      <section class="status-strip" aria-label="Project status">
+        <div class="metric"><strong>6</strong><span>source files</span></div>
+        <div class="metric"><strong>4</strong><span>extracted notes</span></div>
+        <div class="metric"><strong>2</strong><span>prompt versions</span></div>
+        <div class="metric"><strong>Mock</strong><span>safe provider</span></div>
+      </section>
+
+      <section class="workspace">
+        <aside>
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Upload files</h2>
+                <p class="hint">DOCX, PDF, images, DWG attachments</p>
+              </div>
+            </div>
+            <div class="drop">
+              <span><b>Drop files here</b><span class="hint">or choose from disk</span></span>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Files</h2>
+              <span class="tag">6 files</span>
+            </div>
+            <div class="file-list">
+              <article class="item">
+                <div class="row">
+                  <div>
+                    <p class="name">ТЗ на виз гостиная-столовая.docx</p>
+                    <p class="hint">brief · 3189 KB</p>
+                  </div>
+                  <span class="tag good">extracted</span>
+                </div>
+              </article>
+              <article class="item">
+                <div class="row">
+                  <div>
+                    <p class="name">План пола и мебели.pdf</p>
+                    <p class="hint">plan_pdf · manual note required</p>
+                  </div>
+                  <span class="tag warn">manual</span>
+                </div>
+              </article>
+              <article class="item">
+                <div class="row">
+                  <div>
+                    <p class="name">Развертки кухни гостиной.dwg</p>
+                    <p class="hint">dwg · stored only</p>
+                  </div>
+                  <span class="tag warn">manual</span>
+                </div>
+              </article>
+            </div>
+          </section>
+        </aside>
+
+        <section>
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Extracted text</h2>
+                <p class="hint">Only actual extracted content is used</p>
+              </div>
+              <span class="tag good">good</span>
+            </div>
+            <div class="brief">Материалы: светлый камень, теплое дерево.
+Свет: трековые светильники, подвес над столовой группой.
+Мебель: остров, диван, обеденный стол, ТВ-зона.</div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Draft brief</h2>
+                <p class="hint">Draft brief for Кухня-гостиная-столовая · v1</p>
+              </div>
+              <button class="button secondary">Build draft</button>
+            </div>
+            <div class="brief">Interior visualization brief for project: Кухня-гостиная-столовая
+
+Use extracted text, filenames, document kinds, and manual notes. Preserve furniture plan, lighting plan, elevations, and material references. Do not invent unavailable measurements.</div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Prompt editor</h2>
+                <p class="hint">Manual prompt version saved as history</p>
+              </div>
+            </div>
+            <textarea class="textarea">Generate one realistic interior visualization image for a warm modern kitchen-living-dining room. Use light stone, warm wood, calm upholstery, accurate lighting, and a plausible composition based on uploaded plans.</textarea>
+          </section>
+        </section>
+
+        <aside class="job">
+          <section class="panel">
+            <h2>Generate</h2>
+            <p class="hint">Mock provider is default for local tests and public preview.</p>
+            <p style="height: 12px"></p>
+            <button class="button full">Generate image</button>
+            <div class="item" style="margin-top: 14px">
+              <p class="name">Latest job: succeeded</p>
+              <p class="hint">mock · gemini-3-pro-image-preview</p>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Results</h2>
+            <div class="result-list" style="margin-top: 14px">
+              <article class="item">
+                <div class="preview-image" aria-hidden="true"></div>
+                <p class="name">Prompt v2</p>
+                <p class="hint">Result preview placeholder</p>
+              </article>
+            </div>
+          </section>
+        </aside>
+      </section>
+
+      <p class="note">
+        Это статический GitHub Pages preview. Полная версия MVP в репозитории использует
+        Next.js API routes, Prisma и SQLite, поэтому для production ей нужен серверный хостинг.
+      </p>
+    </main>
+  </body>
+</html>

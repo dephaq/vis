@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Project {
+  id              String          @id @default(cuid())
+  name            String
+  description     String          @default("")
+  status          String          @default("active")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  files           UploadedFile[]
+  promptVersions  PromptVersion[]
+  generationJobs  GenerationJob[]
+}
+
+model UploadedFile {
+  id                String          @id @default(cuid())
+  projectId         String
+  originalName      String
+  mimeType          String
+  extension         String
+  sizeBytes         Int
+  sha256            String
+  kind              String
+  storageKey        String
+  status            String
+  manualDescription String?
+  error             String?
+  createdAt         DateTime        @default(now())
+  project           Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  extractedTexts    ExtractedText[]
+
+  @@index([projectId])
+}
+
+model ExtractedText {
+  id               String       @id @default(cuid())
+  uploadedFileId   String
+  extractor        String
+  extractorVersion String
+  text             String       @default("")
+  pageCount        Int?
+  parseQuality     String
+  metadataJson     String       @default("{}")
+  warningsJson     String       @default("[]")
+  createdAt        DateTime     @default(now())
+  uploadedFile     UploadedFile @relation(fields: [uploadedFileId], references: [id], onDelete: Cascade)
+
+  @@index([uploadedFileId])
+}
+
+model PromptVersion {
+  id                String          @id @default(cuid())
+  projectId         String
+  version           Int
+  draftSource       String
+  title             String
+  promptText        String
+  sourceSummaryJson String          @default("{}")
+  isActive          Boolean         @default(true)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  project           Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  generationJobs    GenerationJob[]
+
+  @@unique([projectId, version])
+  @@index([projectId, isActive])
+}
+
+model GenerationJob {
+  id                String             @id @default(cuid())
+  projectId         String
+  promptVersionId   String
+  status            String
+  provider          String
+  model             String
+  inputSnapshotJson String
+  inputHash         String
+  startedAt         DateTime?
+  completedAt       DateTime?
+  errorCode         String?
+  errorMessage      String?
+  createdAt         DateTime           @default(now())
+  project           Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  promptVersion     PromptVersion      @relation(fields: [promptVersionId], references: [id], onDelete: Cascade)
+  results           GenerationResult[]
+
+  @@index([projectId])
+}
+
+model GenerationResult {
+  id                   String        @id @default(cuid())
+  jobId                String
+  kind                 String
+  storageKey           String
+  mimeType             String
+  sizeBytes            Int
+  sha256               String
+  providerMetadataJson String        @default("{}")
+  createdAt            DateTime      @default(now())
+  job                  GenerationJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+}
